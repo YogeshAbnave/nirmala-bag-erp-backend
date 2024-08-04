@@ -11,11 +11,8 @@ var forgotToken = require('../models/forgotToken.model');
 
 
 exports.login = function (req, res) {
-    console.log("req.body.email", req.body);
     AdminUserData.findOne({ email: req.body.email }, function (err, userData) {
-        console.log("userData", err, userData);
         if (err) {
-            console.error('Database error:', err);
             return res.status(500).json({ success: false, status: 500, message: "Database error" });
         }
         if (!userData) {
@@ -23,7 +20,6 @@ exports.login = function (req, res) {
         }
         bcrypt.compare(req.body.password, userData.password, function (bcryptErr, result) {
             if (bcryptErr) {
-                console.error('Bcrypt error:', bcryptErr);
                 return res.status(500).json({ success: false, status: 500, message: "Error during password comparison" });
             }
             if (!result) {
@@ -48,11 +44,8 @@ exports.login = function (req, res) {
 						"name": userData.firstName + " " + userData.lastName,
                         "profilePic": userData.profilePic
                     }
-					console.log("data",data)
-
                     return res.status(200).json(data);
                 }).catch(updateErr => {
-                    console.error('Update error:', updateErr);
                     res.status(500).json({ success: false, status: 500, message: "Error updating session token" });
                 });
         });
@@ -147,7 +140,6 @@ exports.forgotPassword = function (req, res) {
 						platform: 'web'
 					}
 					mailSend.sendMail(params, function (response) {
-						console.log("Resouibse os", response);
 						if (response.success) {
 								res.status(200).send({ success: true, status: 200, message: response.message });
 						} else {

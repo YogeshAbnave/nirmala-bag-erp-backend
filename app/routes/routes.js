@@ -6,6 +6,7 @@ var uploadFile = require("../../lib/uploadFile");
 
 const admin = require("../controllers/admin.controller");
 const user = require("../controllers/user.controller");
+const client = require("../controllers/client.controller");
 
 // Upload category image
 router.post("/uploadFile", authentication.apiAuthentication, uploadFile.fileUpload.single("photo"), (req, res, next) => {
@@ -70,6 +71,19 @@ router.post("/admin/updateProfile", authentication.apiAuthentication, admin.upda
 
 
 
+
+
+
+// Client routes
+router.post("/client/register", client.register);
+router.post("/client/getAll",authentication.apiAuthentication, client.getAll);
+router.get("/client/getAllCount", authentication.apiAuthentication, client.getAllCount);
+router.post('/client/block', authentication.apiAuthentication, client.block);
+router.post('/client/getAllBlocked', authentication.apiAuthentication, client.getAllBlocked);
+router.post('/client/unblock', authentication.apiAuthentication, client.unblock);
+router.post("/client/isNotConverted", client.isNotConverted);
+router.post("/client/isConverted",  client.isConverted);
+router.post("/client/deletedClient", client.delete);
 
 // User routes
 router.post("/user/register", user.register);

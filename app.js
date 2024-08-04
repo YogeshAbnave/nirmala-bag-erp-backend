@@ -20,8 +20,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/public', express.static('public'));
 
 /***************Mongodb configuratrion********************/
-// const dbUri = 'mongodb://localhost:27017/NirmalaBagErp';
-const dbUri = 'mongodb+srv://JLPT-EXAM:Fl4xkzwe7FhJ5fMY@cluster0.bi0xw4z.mongodb.net/JLPT-EXAM';
+const dbUri = 'mongodb://localhost:27017/NirmalaBagErp';
+// const dbUri = 'mongodb+srv://JLPT-EXAM:Fl4xkzwe7FhJ5fMY@cluster0.bi0xw4z.mongodb.net/JLPT-EXAM';
 
 mongoose.connect(dbUri, { 
     useNewUrlParser: true,

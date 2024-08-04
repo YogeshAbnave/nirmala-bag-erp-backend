@@ -4,14 +4,19 @@ var AdminData = require('../app/models/admin.model');
 
 exports.apiAuthentication = function (req, res, next) {
     console.log(req.headers.authorization,"req.headers.authorization")
-    var token = req.headers.authorization;
+    var token = req.headers.authorization || '';
+if (token.startsWith('Bearer ')) {
+    token = token.slice(7, token.length);
+}
     if (token) {
         AdminData.findOne({ "sessionToken": token })
         .then(result => {
+            console.log(result,"result")
             if (result) return next();
             else {
-                UserData.findOne({ "sessionToken": token })
+                AdminData.findOne({ "sessionToken": token })
                 .then(userResult => {
+                    console.log(userResult,"userResult")
                     if (userResult) return next();
                     return res.status(401).json({ success: false, status: 401, message: "Token invalid or expired" });
                 }).catch(err => {
