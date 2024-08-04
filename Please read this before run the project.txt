@@ -1,0 +1,8 @@
+Email - yogeshabnave101@gmail.com
+Password - Admin@123
+
+Command to run - npm run local
+
+
+To deploy on server
+NODE_ENV=development pm2 start app.js --name NirmalaBagERP:5558

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="23" height="25" viewBox="0 0 23 25">
+  <g id="Bell" transform="translate(-1148 -26)">
+    <g id="_02" data-name="02" transform="translate(-449 -10)">
+      <g id="Icon-Notification">
+        <g id="Icon-Notification-2" data-name="Icon-Notification" transform="translate(1298.297 -341.316)">
+          <g id="Group_1" data-name="Group 1">
+            <path id="Path_1" data-name="Path 1" d="M308.7,402.315a2.33,2.33,0,0,0,2.349-2.3h-4.7a2.335,2.335,0,0,0,2.355,2.3Zm7.645-6.9v-6.323a7.43,7.43,0,0,0-5.882-7.243v-.809a1.763,1.763,0,0,0-3.525,0v.809a7.43,7.43,0,0,0-5.882,7.243v6.323l-2.355,2.3v1.151h20v-1.151Zm0,0"/>
+          </g>
+        </g>
+        <path id="Color_Overlay" data-name="Color Overlay" d="M1604.644,58.7h4.7a2.353,2.353,0,0,1-4.7,0ZM1597,57.553V56.4l2.355-2.3V47.777a7.43,7.43,0,0,1,5.883-7.243v-.809a1.763,1.763,0,0,1,3.524,0v.809a7.43,7.43,0,0,1,5.881,7.243V54.1L1617,56.4v1.151Z" fill="#aaa"/>
+      </g>
+      <g id="Circle" transform="translate(1610 38)" fill="#d61d00" stroke="#dc0909" stroke-linejoin="round" stroke-width="2">
+        <circle cx="4" cy="4" r="4" stroke="none"/>
+        <circle cx="4" cy="4" r="5" fill="none"/>
+      </g>
+    </g>
+    <text id="_2" data-name="2" transform="translate(1163 35)" fill="#fff" font-size="8" font-family="Poppins-Regular, Poppins"><tspan x="0" y="0">2</tspan></text>
+  </g>
+</svg>

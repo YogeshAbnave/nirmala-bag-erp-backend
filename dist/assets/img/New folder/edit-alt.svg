@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g id="edit-alt" transform="translate(-296.942 -185.943)">
+    <g id="Group_8397" data-name="Group 8397" transform="translate(297.361 186.361)">
+      <g id="Rectangle_1734" data-name="Rectangle 1734" transform="translate(-0.418 -0.418)" fill="#fff" stroke="#e9e9e9" stroke-width="1">
+        <rect width="32" height="32" rx="5" stroke="none"/>
+        <rect x="0.5" y="0.5" width="31" height="31" rx="4.5" fill="none"/>
+      </g>
+      <path id="Icon_material-edit" data-name="Icon material-edit" d="M4.5,17.082v3.311H7.811l9.766-9.766L14.266,7.315ZM20.138,8.066a.879.879,0,0,0,0-1.245L18.072,4.755a.879.879,0,0,0-1.245,0L15.211,6.37l3.311,3.311Z" transform="translate(3.082 3.086)"/>
+    </g>
+  </g>
+</svg>

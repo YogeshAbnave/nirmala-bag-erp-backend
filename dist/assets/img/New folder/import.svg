@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g id="import" transform="translate(-1563 -164)">
+    <g id="Rectangle_1728" data-name="Rectangle 1728" transform="translate(1563 164)" fill="#f7fbff" stroke="#ddd" stroke-width="1">
+      <rect width="32" height="32" rx="5" stroke="none"/>
+      <rect x="0.5" y="0.5" width="31" height="31" rx="4.5" fill="none"/>
+    </g>
+    <g id="Download" transform="translate(1611.147 198.045) rotate(180)">
+      <path id="Path_38282" data-name="Path 38282" d="M130.064,233.33h-2.821a.705.705,0,0,0,0,1.411h2.116v5.642H118.074v-5.642h2.116a.705.705,0,0,0,0-1.411h-2.821a.705.705,0,0,0-.705.705v7.053a.705.705,0,0,0,.705.705h12.695a.705.705,0,0,0,.705-.705v-7.053a.705.705,0,0,0-.705-.705Z" transform="translate(-91.797 -216.924)" fill="#595959"/>
+      <path id="Path_38283" data-name="Path 38283" d="M234.776,50.692l1.617-1.617V55.13a.705.705,0,1,0,1.41,0V49.075l1.617,1.617a.705.705,0,0,0,1-1L237.6,46.874h0a.7.7,0,0,0-1,0l-2.821,2.821h0a.705.705,0,0,0,1,1Z" transform="translate(-205.179 -35.903)" fill="#595959"/>
+    </g>
+  </g>
+</svg>
