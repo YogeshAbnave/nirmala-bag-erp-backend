@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
+const multer = require('multer');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('express').Router();
@@ -21,7 +22,7 @@ app.use('/public', express.static('public'));
 
 /***************Mongodb configuratrion********************/
 // const dbUri = 'mongodb://localhost:27017/NirmalaBagErp';
-const dbUri = 'mongodb+srv://JLPT-EXAM:Fl4xkzwe7FhJ5fMY@cluster0.bi0xw4z.mongodb.net/JLPT-EXAM';
+const dbUri = 'mongodb+srv://Nirmala-bag:Nirmala7596@cluster0.bi0xw4z.mongodb.net/Nirmala-bag';
 
 mongoose.connect(dbUri, { 
     useNewUrlParser: true,
@@ -38,29 +39,32 @@ mongoose.set('runValidators', true);
 //set up our express application
 app.use(morgan('dev'));
 app.use(cookieParser());
+app.use(express.json({ limit: '50mb' }));  // Set the size limit to 50mb
+const storage = multer.memoryStorage(); 
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 100 * 1024 * 1024 },  // Limit file size to 100MB
+}).single('file'); 
+// Increase the limit for URL-encoded data
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
     next();
 });
-// routes ======================================================================
-app.use('/api', require('./app/routes/routes.js')); // load our routes and pass in our app and fully configured passport
-const users = [
-    { id: 1, name: 'John' },
-    { id: 2, name: 'Jane' },
-    { id: 3, name: 'Doe' }
-  ];
-  
-  // GET endpoint to fetch all users
-  app.get('/api/data', (req, res) => {
-    res.json(users);
-  });
-// app.use(express.static(path.join(__dirname, '/angularApp/dist')));
-app.use(express.static(path.join(__dirname, '/public')));
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'angularApp/dist/index.html'));
-// });
 
-// launch ======================================================================
+app.post('/upload', upload, (req, res) => {
+    if (req.file) {
+      // Process the file (e.g., parse XLSX file)
+      res.status(200).json({ message: 'File uploaded successfully', file: req.file });
+    } else {
+      res.status(400).json({ message: 'No file uploaded' });
+    }
+  });
+
+// routes ======================================================================
+app.use('/api', require('./app/routes/routes.js')); 
+app.use(express.static(path.join(__dirname, '/public')));
+
 const http = require('http');
 const server = http.createServer(app);
 server.listen(port);

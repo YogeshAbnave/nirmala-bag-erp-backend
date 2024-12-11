@@ -11,6 +11,7 @@ var forgotToken = require('../models/forgotToken.model');
 
 
 exports.login = function (req, res) {
+	console.log("req",req.body)
     AdminUserData.findOne({ email: req.body.email }, function (err, userData) {
         if (err) {
             return res.status(500).json({ success: false, status: 500, message: "Database error" });

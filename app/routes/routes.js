@@ -1,12 +1,16 @@
 const router = require("express").Router();
 const sharp = require("sharp");
-
+const multer = require('multer');
 var authentication = require("../../config/authentication.js");
 var uploadFile = require("../../lib/uploadFile");
 
 const admin = require("../controllers/admin.controller");
 const user = require("../controllers/user.controller");
 const client = require("../controllers/client.controller");
+
+const xlsx = require("../controllers/excel.controller.js");
+const storage = multer.memoryStorage(); // Store file in memory
+const upload = multer({ storage: storage });
 
 // Upload category image
 router.post("/uploadFile", authentication.apiAuthentication, uploadFile.fileUpload.single("photo"), (req, res, next) => {
@@ -65,6 +69,12 @@ router.post("/admin/changePassword", authentication.apiAuthentication, admin.cha
 router.get("/admin/logout", admin.logout);
 router.get("/admin/getAdminById/:userId", authentication.apiAuthentication, admin.getAdminById);
 router.post("/admin/updateProfile", authentication.apiAuthentication, admin.updateProfile);
+
+
+// Xlsx import
+router.post('/xlsx/import/chunk', upload.single('chunk'), xlsx.insertXlsx);
+
+router.get("/xlsx/import",xlsx.getData );
 
 // Employees routes
 

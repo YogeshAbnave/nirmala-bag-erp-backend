@@ -1,9 +1,0 @@
-<svg id="bold" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-  <rect id="box_bold_Background_" data-name="box/bold (Background)" width="18" height="18" fill="none"/>
-  <g id="vuesax_bold_box" data-name="vuesax/bold/box">
-    <path id="Vector" d="M6.926,7.708a.773.773,0,0,1-.765,0L.386,4.363a.761.761,0,0,1-.2-1.155,2.691,2.691,0,0,1,.727-.593L4.976.366a3.575,3.575,0,0,1,3.15,0l4.065,2.25a2.839,2.839,0,0,1,.727.593A.774.774,0,0,1,12.7,4.363Z" transform="translate(2.456 1.502)" fill="#fff"/>
-    <path id="Vector-2" data-name="Vector" d="M6.9,9.019a.758.758,0,0,1-1.088.7C4.267,8.959,1.665,7.541,1.665,7.541A3.675,3.675,0,0,1,0,4.646V.776A.759.759,0,0,1,1.132.1L6.525,3.229A.807.807,0,0,1,6.9,3.9Z" transform="translate(1.672 6.701)" fill="#fff"/>
-    <path id="Vector-3" data-name="Vector" d="M0,9.019a.758.758,0,0,0,1.088.7c1.545-.757,4.147-2.175,4.147-2.175A3.675,3.675,0,0,0,6.9,4.646V.776A.759.759,0,0,0,5.768.1L.375,3.229A.807.807,0,0,0,0,3.9Z" transform="translate(9.427 6.701)" fill="#fff"/>
-    <path id="Vector-4" data-name="Vector" d="M18,0V18H0V0Z" transform="translate(18 18) rotate(180)" fill="#fff" opacity="0"/>
-  </g>
-</svg>

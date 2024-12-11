@@ -62,6 +62,7 @@
     "sharp": "^0.29.1",
     "simple-encryptor": "latest",
     "socket.io": "^4.4.0",
-    "underscore": "latest"
+    "underscore": "latest",
+    "xlsx": "^0.18.5"
   }
 }
