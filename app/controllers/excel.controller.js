@@ -21,14 +21,16 @@ exports.insertXlsx = async (req, res) => {
     const emails = new Set();
 
     jsonData.forEach((item) => {
-      const email = item['Email Id'];
+      console.log(item,"item")
+      const email = item?.Email;
       if (!emails.has(email)) {
         emails.add(email);
         uniqueContacts.push({
           name: item?.Name,
           email,
-          mobile: item['Mobile No.'],
+          mobile: item?.Mobile,
           address: item?.Address,
+          landmark: item?.Landmark,
           city: item?.City,
           industry: item?.Industry,
         });
@@ -59,3 +61,20 @@ exports.getData = async (req, res) => {
       }
 
 }
+
+exports.deleteData = async (req, res) => {
+  const productId = req.params.id;
+
+  try {
+    const product = await XlsxData.findByIdAndDelete(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'data not found' });
+    }
+
+    res.status(200).json({ message: ' Deleted successfully', product });
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

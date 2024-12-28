@@ -26,6 +26,11 @@ const XlsxSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  landmark: {
+    type: String,
+    trim: true,
+  },
+  
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields automatically
 });

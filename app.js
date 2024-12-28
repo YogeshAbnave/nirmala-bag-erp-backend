@@ -22,7 +22,7 @@ app.use('/public', express.static('public'));
 
 /***************Mongodb configuratrion********************/
 // const dbUri = 'mongodb://localhost:27017/NirmalaBagErp';
-const dbUri = 'mongodb+srv://Nirmala-bag:Nirmala7596@cluster0.bi0xw4z.mongodb.net/Nirmala-bag';
+const dbUri = 'mongodb+srv://Nirmala-bag:Nirmala7596@ac-aphcdql.bi0xw4z.mongodb.net/Nirmala-bag?retryWrites=true&w=majority';
 
 mongoose.connect(dbUri, { 
     useNewUrlParser: true,

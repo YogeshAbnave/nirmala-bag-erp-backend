@@ -73,7 +73,7 @@ router.post("/admin/updateProfile", authentication.apiAuthentication, admin.upda
 
 // Xlsx import
 router.post('/xlsx/import/chunk', upload.single('chunk'), xlsx.insertXlsx);
-
+router.delete('/xlsx/import/delete/:id', xlsx.deleteData);
 router.get("/xlsx/import",xlsx.getData );
 
 // Employees routes
