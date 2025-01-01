@@ -27,7 +27,7 @@ app.use((req, res, next) => {
   });
   next();
 });
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:4200'];
+const allowedOrigins = ['https://nirmala-bag-erp-backend.onrender.com','http://localhost:5173', 'http://localhost:4200'];
 
 app.use(cors({
   origin: function (origin, callback) {
