@@ -4,13 +4,12 @@ var jwt = require("jsonwebtoken");
 var uid = require('rand-token').uid;
 
 const fs = require('fs');
-const schedule = require('node-schedule');
 const moment = require('moment');
 const async = require("async");
 
 var mailSend = require('../../config/sendMail.js');
 const iapValidationLib = require('../../lib/in-app-purchase');
-var UserData = require('../models/user.model');
+var webUserData = require('../models/user.model');
 var deletedUser = require('../models/deleteUser.model');
 var forgotToken = require('../models/forgotToken.model');
 var verifyCode = require('../models/verificationCode.model');
@@ -93,7 +92,7 @@ exports.register = (req, res) => {
     if (password !== confirmPassword) {
         res.status(400).send({ success: false, status: 400, message: "Password and Confirm password does not match." });
     } else if (re.test(password)) {
-        let userData = new UserData({
+        let userData = new webUserData({
             firstName,
             lastName,
             username,
@@ -145,7 +144,7 @@ exports.resendCode = function(req, res) {
         }).catch(err => {
             console.log(err.message);
         });
-    UserData.findOne({ _id: req.body.userId }, function(err, userData) {
+    webUserData.findOne({ _id: req.body.userId }, function(err, userData) {
         if (userData) {
             let params = {
                 name: userData.firstName + " " + userData.lastName,
@@ -176,13 +175,13 @@ exports.verify = function(req, res) {
         } else if (result.expired) {
             res.status(400).send({ success: false, status: 400, message: 'Entered verification code is expired.' });
         } else {
-            UserData.findOneAndUpdate({ "_id": req.body.userId }, { $set: { "isVerified": true } }, function(err, userData) {
+            webUserData.findOneAndUpdate({ "_id": req.body.userId }, { $set: { "isVerified": true } }, function(err, userData) {
                 if (err) {
                     res.status(500).send({ success: false, status: 500, message: "Some error occurred during verification of the user." });
                 } else {
                     verifyCode.updateMany({ user: req.body.userId }, { $set: { expired: true } }, function(err, response) {});
-                    let token = jwt.sign({ username: userData.username }, 'RESTFULAPIs');
-                    UserData.updateOne({ "_id": userData._id }, { $set: { "sessionToken": token } })
+                    let token = jwt.sign({ username: userData.username }, 'Nirmala-bag-erp');
+                    webUserData.updateOne({ "_id": userData._id }, { $set: { "sessionToken": token } })
                     .then(() => {
                         var data = {
                             "success": true,
@@ -208,7 +207,7 @@ exports.verify = function(req, res) {
 exports.login = function(req, res) {
     let { email, password, deviceToken } = req.body;
     
-    UserData.findOne({ email: email }, function(err, userData) {
+    webUserData.findOne({ email: email }, function(err, userData) {
         if (!userData) {
             return res.status(404).send({ success: false, status: 404, message: "User does not exist" });
         } else if (!bcrypt.compareSync(password, userData.password)) {
@@ -233,8 +232,8 @@ exports.login = function(req, res) {
                 }
             });
         } else {
-            let token = jwt.sign({ username: userData.username }, 'RESTFULAPIs');
-            UserData.updateOne({ "_id": userData._id }, { $set: { "deviceToken": deviceToken, "sessionToken": token } })
+            let token = jwt.sign({ username: userData.username }, 'Nirmala-bag-erp');
+            webUserData.updateOne({ "_id": userData._id }, { $set: { "deviceToken": deviceToken, "sessionToken": token } })
             .then(() => {
                 var data = {
                     "success": true,
@@ -258,7 +257,7 @@ exports.login = function(req, res) {
 
 exports.logout = function(req, res) {
     let { userId } = req.body;
-    UserData.updateOne({ "_id": userId }, { $set: { "deviceToken": "", "sessionToken": "" } })
+    webUserData.updateOne({ "_id": userId }, { $set: { "deviceToken": "", "sessionToken": "" } })
     .then(() => {
         res.status(200).send({ success: true, status: 200, message: "User logout successfully" });
     }).catch(err => {
@@ -270,10 +269,10 @@ exports.logout = function(req, res) {
 exports.deletedUser = async (req, res) => {
     try {
         const { userId } = req.body;
-        const user = await UserData.findOne({ "_id": userId });
+        const user = await webUserData.findOne({ "_id": userId });
 
         if (user) {
-            await UserData.updateOne(
+            await webUserData.updateOne(
                 { "_id": userId },
                 {
                     $set: {
@@ -302,19 +301,19 @@ exports.getById = async(req, res) => {
     let userId = req.params.userId;
     let currentUserId = req.query.currentUserId;    // the user who logged in app
 
-    let user_exists = await UserData.findOne({ "_id": userId });
+    let user_exists = await webUserData.findOne({ "_id": userId });
 
     let filter_query = { "_id": userId };
     if (currentUserId && (currentUserId != userId)) {
         filter_query = { "_id": userId, "block.user": { $nin: [currentUserId] } }
     }
-    UserData.findOne(filter_query).populate(query)
+    webUserData.findOne(filter_query).populate(query)
     .then(async result => {
         if (!result) {
             if (user_exists) res.status(400).send({ success: false, status: 400, message: "You are not allowed to view this users profile at the moment, please try again later" });
             else res.status(404).send({ success: false, status: 404, message: "User does not exist" });
         } else {
-            let users = await UserData.find({ "active": true, "win": { $gte: 1 } }).sort({ win: -1, loss: 1 }).limit(50);
+            let users = await webUserData.find({ "active": true, "win": { $gte: 1 } }).sort({ win: -1, loss: 1 }).limit(50);
             let rank = users.findIndex(item => item._id.toString() == userId) + 1;
             var data = {
                 _id: result._id,
@@ -337,7 +336,7 @@ exports.getById = async(req, res) => {
             }
 
             if (currentUserId && (currentUserId != userId)) {
-                let user = await UserData.findOne({ "_id": currentUserId }).lean();
+                let user = await webUserData.findOne({ "_id": currentUserId }).lean();
                 if (user.followings.length > 0) {
                     for (var i = 0; i < user.followings.length; i++) {
                         if (user.followings[i].following.toString() == userId) {
@@ -404,7 +403,7 @@ exports.getAll = async (req, res) => {
     if (platform && platform == "admin") query = {};
     else {
         // Blocked Users
-        let user = await UserData.findOne({ "_id": userId });
+        let user = await webUserData.findOne({ "_id": userId });
         let blockedUsers = [];
         if (user && user.block && user.block.length > 0) {
             blockedUsers = user.block.map(item => {
@@ -445,7 +444,7 @@ exports.getAll = async (req, res) => {
     };
     
 
-    UserData.aggregate([
+    webUserData.aggregate([
         {
             $match: query
         },
@@ -469,7 +468,7 @@ exports.getAll = async (req, res) => {
         }
     ]).then(async result => {
         if (userId && result[0].data.length > 0) {
-            let user = await UserData.findOne({ "_id": userId });
+            let user = await webUserData.findOne({ "_id": userId });
            
             result[0].data.map(item => {
                 return item;
@@ -484,49 +483,11 @@ exports.getAll = async (req, res) => {
 
 exports.getAllCount = async(req, res) => {
     try {
-        let users = await UserData.countDocuments({"active": true});
+        let users = await webUserData.countDocuments({"active": true});
         res.status(200).json({ error: false, status: 200, data: users, message: 'All users count' });
     } catch (err) {
         res.status(500).json({ error: true, status: 500, message: err.message });
     }
-}
-
-
-exports.topDebators = (req, res) => {
-    let page = parseInt(req.query.page, 10) || 1;
-    let limit = parseInt(req.query.limit, 10) || 100;
-
-    let query = { "active": true, "win": { $gte: 1 }, "isVerified": true };
-    UserData.aggregate([{
-            $match: query
-        },
-        {
-            $sort: { win: -1, loss: 1 }
-        },
-        categoryLookup,
-        followingLookup,
-        project,
-        {
-            $project: {
-                "active": 0,
-                "subscriptions": 0
-            }
-        },
-        {
-            $limit: 50
-        },
-        {
-            '$facet': {
-                metadata: [{ $count: "total" }, { $addFields: { 'page': page } }],
-                data: [{ $skip: (limit * page) - limit }, { $limit: limit }]
-            }
-        }
-    ]).then(result => {
-        result[0].data.length > 0 ? result[0].metadata[0].count = result[0].data.length : 0;
-        res.status(200).json({ success: true, status: 200, message: 'Top debators', metadata: result[0].metadata, data: result[0].data });
-    }).catch(err => {
-        res.status(500).json({ success: false, status: 500, message: err.message })
-    });
 }
 
 exports.getByCategory = async (req, res) => {
@@ -537,7 +498,7 @@ exports.getByCategory = async (req, res) => {
 
     let query = { "active": true, "isVerified": true };
 
-    UserData.aggregate([
+    webUserData.aggregate([
         {
             $match: query
         },
@@ -572,7 +533,7 @@ exports.getByCategory = async (req, res) => {
             }
         }
     ]).then(async result => {
-        let user = await UserData.findOne({ "_id": userId });
+        let user = await webUserData.findOne({ "_id": userId });
         result[0].data.map(item => {
             let exists = user.followings.find(element => element.following.toString() == item._id.toString());
             if (exists) item['isFollowed'] = true;
@@ -598,7 +559,7 @@ exports.updateProfile = function(req, res) {
         about: req.body.about,
         profilePic: req.body.profilePic
     }
-    UserData.updateOne({ _id: userId }, { $set: userData }, function(err, profileData) {
+    webUserData.updateOne({ _id: userId }, { $set: userData }, function(err, profileData) {
         if (err) {
             res.status(500).json({ success: false, status: 500, message: err.message });
         } else {
@@ -611,7 +572,7 @@ exports.updateProfile = function(req, res) {
 
 exports.forgotPassword = function(req, res) {
     var userMail = req.body.email;
-    UserData.findOne({ email: userMail }, function(err, userData) {
+    webUserData.findOne({ email: userMail }, function(err, userData) {
         if (!userData) {
             res.status(404).send({ success: false, status: 404, message: "User does not exist" });
         } else {
@@ -670,7 +631,7 @@ exports.resetPassword = function(req, res) {
         if (userData == null) {
             res.status(400).send({ success: false, status: 400, message: "Token expired or invalid" })
         } else if (userData.userId == req.body.userId) {
-            UserData.findOneAndUpdate({ _id: req.body.userId }, { $set: { password: bcrypt.hashSync(req.body.password, salt) } }, function(err, response) {
+            webUserData.findOneAndUpdate({ _id: req.body.userId }, { $set: { password: bcrypt.hashSync(req.body.password, salt) } }, function(err, response) {
                 if (err) {
                     res.status(500).send({ success: false, status: 500, message: "Some Error while resetting password" });
                 } else {
@@ -685,12 +646,12 @@ exports.resetPassword = function(req, res) {
 }
 
 exports.changePassword = (req, res) => {
-    UserData.findOne({ _id: req.body.userId }).then(newUser => {
+    webUserData.findOne({ _id: req.body.userId }).then(newUser => {
         bcrypt.compare(req.body.currentPassword, newUser.password, (err, isMatched) => {
             if (!isMatched) return res.status(400).json({ success: false, message: "Old password is incorrect" });
             else if (re.test(req.body.password)) {
                 let passwordHash = bcrypt.hashSync(req.body.password, salt);
-                UserData.updateOne({ _id: req.body.userId }, { $set: { password: passwordHash } })
+                webUserData.updateOne({ _id: req.body.userId }, { $set: { password: passwordHash } })
                     .then(() => {
                         return res.status(200).json({ success: true, status: 200, message: 'Congratulations : Your password changed successfully' });
                     }).catch(err => {
@@ -705,210 +666,9 @@ exports.changePassword = (req, res) => {
     });
 }
 
-// Add User Category
-exports.addUserCategory = function(req, res) {
-    var data = [];
-    for (var i = 0; i < req.body.category.length; i++) {
-        data.push({
-            category: req.body.category[i]
-        })
-    }
-    UserData.findByIdAndUpdate(req.body.userId, { $set: { categories: [] } })
-        .then(() => {
-            UserData.findByIdAndUpdate(req.body.userId, {
-                $push: {
-                    categories: {
-                        $each: data
-                    }
-                }
-            }).then(() => {
-                res.status(200).json({ success: true, status: 200, message: 'User category added successfully' });
-            }).catch(err => {
-                res.status(400).json({ success: false, status: 400, message: err.message });
-            });
-        }).catch(err => {
-            res.status(500).json({ success: false, status: 500, message: err.message });
-        });
-}
-
-
-// Check subscription
-exports.checkSubscription = (req, res) => {
-    let { userId } = req.body;
-
-    UserData.findOne({ "_id": userId }).populate('subscriptions.paymentId')
-    .then(async result => {
-        let response_data = {
-            user: {}
-        };
-        if (result.subscriptions.length > 0) {
-            let subscription = result.subscriptions[result.subscriptions.length-1];
-            if (subscription.device.type == "android") {
-                const androidValidation = await iapValidationLib.validatePurchase("android", "checkSubscription",  subscription.paymentId.paymentReceipt.transactionReceipt);
-                if (androidValidation.success) {
-                    response_data.user.benefits = "This is plan";
-                    // Update user subscription status
-                } else {
-                }
-                response_data.user.receipt = androidValidation;
-                res.status(200).json({ success: true, status: 200, data: response_data, message: 'User subscription status' });
-            } else if (subscription.device.type == "ios") {
-                const iosValidation = await iapValidationLib.validatePurchase("ios", "checkSubscription", subscription.paymentId.paymentReceipt.transactionReceipt);
-                if (iosValidation.success) {
-                    response_data.user.benefits = "This is plan";
-                    // Update user subscription status
-                } else {
-                }
-                response_data.user.receipt = iosValidation;
-                res.status(200).json({ success: true, status: 200, data: response_data, message: 'User subscription status' });
-            }
-        } else {
-            response_data.user.type = "Free";
-            res.status(200).json({ success: true, status: 200, data: response_data, message: 'User subscription status' });
-        }
-    }).catch(err => {
-        res.status(500).json({ success: false, status: 500, message: err.message });
-    });
-}
-
-// Follow Users
-exports.follow = (req, res) => {
-    let { userId, followingId } = req.body;
-    if (userId != followingId) {
-        UserData.findOne({ $or: [{ "_id": userId, 'block.user': followingId }, { "_id": followingId, 'block.user': userId }] })
-        .then(result => {
-            if (result) {
-                res.status(400).json({ success: false, status: 400, message: 'You have blocked this user, please unblock the user in order to follow' });
-            } else {
-                UserData.findOne({ "_id": userId, 'followings.following': followingId })
-                .then(result => {
-                    if (result) {
-                        res.status(400).json({ success: false, status: 400, message: 'User is already followed' });
-                    } else {
-                        UserData.findByIdAndUpdate(userId, {
-                            $push: {
-                                followings: {
-                                    "following": followingId
-                                }
-                            }
-                        }).then(() => {
-                            res.status(200).json({ success: true, status: 200, message: 'User followed successfully' });
-                        }).catch(err => {
-                            res.status(500).json({ success: false, status: 500, message: err.message });
-                        });
-                    }
-                }).catch(err => {
-                    res.status(500).json({ success: false, status: 500, message: err.message });
-                });
-            }
-        }).catch(err => {
-            res.status(500).json({ success: false, status: 500, message: err.message });
-        });
-    } else res.status(400).send({ success: false, status: 400, message: "You cannot follow yourself" });
-}
-exports.unfollow = (req, res) => {
-    let { userId, followingId } = req.body;
-    UserData.findOne({ "_id": userId, "followings.following": followingId })
-    .then(result => {
-        if (result) {
-            UserData.updateOne({ "_id": userId }, {
-                $pull: {
-                    followings: {
-                        "following": followingId
-                    }
-                }
-            }).then(async() => {
-                try {
-                  
-                } catch (err) {
-                    res.status(500).json({ success: false, status: 500, message: err.message });
-                }
-                res.status(200).json({ success: true, status: 200, message: 'User unfollowed successfully' });
-            }).catch(err => {
-                res.status(500).json({ success: false, status: 500, message: err.message });
-            });
-        } else res.status(200).json({ success: true, status: 200, message: 'Incorrect userId or followingId' });
-    }).catch(err => {
-        res.status(500).json({ success: false, status: 500, message: err.message });
-    });
-}
-
-exports.getFollowingById = async(req, res) => {
-    let userId = req.params.userId;
-
-    UserData.aggregate([
-        {
-            $match: { "_id": ObjectId(userId) }
-        },
-        followingLookup,
-        {
-            $unwind: "$followings"
-        },
-        {
-            $project: {
-                "_id": "$followings._id",
-                "firstName": "$followings.firstName",
-                "lastName": "$followings.lastName",
-                "email": "$followings.email",
-                "username": "$followings.username",
-                "profilePic": "$followings.profilePic"
-            }
-        }
-    ]).then(result => {
-        result.map(item => {
-            item.friendRequest = 'Not Sent';
-            return item;
-        })
-        res.status(200).json({ success: true, status: 200, message: 'All followings', data: result });
-    }).catch(err => {
-        res.status(500).json({ success: false, status: 500, message: err.message })
-    });
-}
-
-exports.getFollowersById = async(req, res) => {
-    let userId = req.params.userId;
-    let user = await UserData.find({ "_id": userId }).lean();
-
-    UserData.aggregate([
-        followingLookup,
-        {
-            $unwind: "$followings"
-        },
-        {
-            $match: { "followings._id": ObjectId(userId) }
-        },
-        {
-            $project: {
-                "_id": 1,
-                "firstName": 1,
-                "lastName": 1,
-                "email": 1,
-                "username": 1,
-                "profilePic": 1
-            }
-        }
-    ]).then(result => {
-        result.map(item => {
-            item.friendRequest = 'Not Sent';
-           
-            item.follow = false;
-            for (var j = 0; j < user[0].followings.length; j++) {
-                if (user[0].followings[j].following.toString() == item._id.toString()) {
-                    item.follow = true;
-                    break;
-                } else item.follow = false;
-            }
-            return item;
-        });
-        res.status(200).json({ success: true, status: 200, message: 'All followers', data: result });
-    }).catch(err => {
-        res.status(500).json({ success: false, status: 500, message: err.message })
-    });
-}
-
 exports.block = (req, res) => {
     let { userId, blockingUserId } = req.body;
-    UserData.findOne({
+    webUserData.findOne({
             $or: [
                 { "_id": userId, "followings.following": blockingUserId },
                 { "_id": blockingUserId, "followings.following": userId }
@@ -917,14 +677,14 @@ exports.block = (req, res) => {
         })
         .then(async result => {
             if (result) {
-                UserData.findOne({ "_id": userId, "block.user": { $nin: [blockingUserId] } })
+                webUserData.findOne({ "_id": userId, "block.user": { $nin: [blockingUserId] } })
                 .then((result) => {
                     if (result) {
-                        UserData.updateOne({ "_id": userId }, { $addToSet: { "block": { "user": blockingUserId } } })
+                        webUserData.updateOne({ "_id": userId }, { $addToSet: { "block": { "user": blockingUserId } } })
                         .then(() => {
                             async.parallel([
                                 function(callback) {
-                                    UserData.updateOne({ "_id": userId }, { $pull: { "followings": { "following": blockingUserId } } })
+                                    webUserData.updateOne({ "_id": userId }, { $pull: { "followings": { "following": blockingUserId } } })
                                     .then(() => {
                                         callback();
                                     }).catch(err => {
@@ -932,7 +692,7 @@ exports.block = (req, res) => {
                                     });
                                 },
                                 function(callback) {
-                                    UserData.updateOne({ "_id": blockingUserId }, { $pull: { "followings": { "following": userId } } })
+                                    webUserData.updateOne({ "_id": blockingUserId }, { $pull: { "followings": { "following": userId } } })
                                     .then(() => {
                                         callback();
                                     }).catch(err => {
@@ -956,7 +716,7 @@ exports.block = (req, res) => {
 
 exports.getAllBlocked = (req, res) => {
     let { userId } = req.body;
-    UserData.aggregate([{
+    webUserData.aggregate([{
             $match: { "_id": ObjectId(userId) }
         },
         {
@@ -989,10 +749,10 @@ exports.getAllBlocked = (req, res) => {
 
 exports.unblock = (req, res) => {
     let { userId, unBlockingUserId } = req.body;
-    UserData.findOne({ "_id": userId, "block.user": { $in: [unBlockingUserId] } })
+    webUserData.findOne({ "_id": userId, "block.user": { $in: [unBlockingUserId] } })
     .then(result => {
         if (result) {
-            UserData.updateOne({ "_id": userId }, { $pull: { "block": { "user": unBlockingUserId } } })
+            webUserData.updateOne({ "_id": userId }, { $pull: { "block": { "user": unBlockingUserId } } })
                 .then(() => {
                     res.status(200).json({ success: true, status: 200, message: 'User unblocked successfully' });
                 }).catch(err => {
@@ -1006,7 +766,7 @@ exports.unblock = (req, res) => {
 
 exports.showNotification = (req, res) => {
     let userId = req.params.userId;
-    UserData.updateOne({ "_id": userId }, { $set: { "isNotification": true } })
+    webUserData.updateOne({ "_id": userId }, { $set: { "isNotification": true } })
     .then(() => {
         res.status(200).json({ success: true, status: 200, message: 'Notification set to show successfully' })
     }).catch(err => {
@@ -1015,7 +775,7 @@ exports.showNotification = (req, res) => {
 }
 exports.hideNotification = (req, res) => {
     let userId = req.params.userId;
-    UserData.updateOne({ "_id": userId }, { $set: { "isNotification": false } })
+    webUserData.updateOne({ "_id": userId }, { $set: { "isNotification": false } })
     .then(() => {
         res.status(200).json({ success: true, status: 200, message: 'Notification set to hide successfully' })
     }).catch(err => {
@@ -1026,12 +786,12 @@ exports.hideNotification = (req, res) => {
 // Activate & Deactivate by admin
 exports.deactivate = (req, res) => {
     let userId = req.params.userId;
-    UserData.findOne({ "_id": userId })
+    webUserData.findOne({ "_id": userId })
     .then(result => {
         if (result.subscriptions.length > 0) {
             res.status(400).json({ success: false, status: 400, message: 'You cannot deactivate this user, because this user has active subscription.' })
         } else {
-            UserData.updateOne({ "_id": userId }, { $set: { "active": false } })
+            webUserData.updateOne({ "_id": userId }, { $set: { "active": false } })
             .then(() => {
                 res.status(200).json({ success: true, status: 200, message: 'User deactivated successfully' })
             }).catch(err => {
@@ -1045,7 +805,7 @@ exports.deactivate = (req, res) => {
 
 exports.activate = (req, res) => {
     let userId = req.params.userId;
-    UserData.updateOne({ "_id": userId }, { $set: { "active": true } })
+    webUserData.updateOne({ "_id": userId }, { $set: { "active": true } })
     .then(() => {
         res.status(200).json({ success: true, status: 200, message: 'User activated successfully' })
     }).catch(err => {

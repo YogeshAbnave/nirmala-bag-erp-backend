@@ -3,14 +3,18 @@ const sharp = require("sharp");
 const multer = require('multer');
 var authentication = require("../../config/authentication.js");
 var uploadFile = require("../../lib/uploadFile");
-
+const uploadMiddleware = require('../middleware/multer');
 const admin = require("../controllers/admin.controller");
-const user = require("../controllers/user.controller");
+const webUser = require("../controllers/webUser.controller");
 const client = require("../controllers/client.controller");
-
+const product = require("../controllers/product.controller.js");
+const order = require("../controllers/order.controller.js");
+const cart = require("../controllers/cart.controller.js");
 const xlsx = require("../controllers/excel.controller.js");
+const authUser = require("../middleware/auth.js");
 const storage = multer.memoryStorage(); // Store file in memory
 const upload = multer({ storage: storage });
+
 
 // Upload category image
 router.post("/uploadFile", authentication.apiAuthentication, uploadFile.fileUpload.single("photo"), (req, res, next) => {
@@ -59,7 +63,7 @@ router.post("/uploadProfile", uploadFile.profileUpload.single("photo"), (req, re
   }
 );
 
-// Admin user routes
+// Admin webUser routes
 router.post("/admin/login", admin.login);
 router.post("/admin/addAdmin", admin.addAdmin);
 router.post("/admin/forgotPassword", admin.forgotPassword);
@@ -96,34 +100,30 @@ router.post("/client/isConverted",  client.isConverted);
 router.post("/client/deletedClient", client.delete);
 
 // User routes
-router.post("/user/register", user.register);
-router.post("/user/resendCode", user.resendCode);
-router.post("/user/addUserCategory", user.addUserCategory);
-router.post("/user/follow", user.follow);
-router.post("/user/unfollow", user.unfollow);
-router.post("/user/checkSubscription", user.checkSubscription);
-router.post("/user/login", user.login);
-router.post("/user/verify", user.verify);
-router.post("/user/forgotPassword", user.forgotPassword);
-router.post("/user/checkResetPasswordToken", user.checkResetPasswordToken);
-router.post("/user/resetPassword", user.resetPassword);
-router.post("/user/changePassword", authentication.apiAuthentication, user.changePassword);
-router.post("/user/updateProfile", authentication.apiAuthentication, user.updateProfile);
-router.post("/user/getAll", user.getAll);
-router.get("/user/getAllCount", authentication.apiAuthentication, user.getAllCount);
-router.get("/user/topDebators", authentication.apiAuthentication, user.topDebators);
-router.post("/user/getByCategory", user.getByCategory);
-router.get("/user/getById/:userId", authentication.apiAuthentication, user.getById);
-router.get("/user/getFollowingById/:userId", authentication.apiAuthentication, user.getFollowingById);
-router.get("/user/getFollowersById/:userId", authentication.apiAuthentication, user.getFollowersById);
-router.post('/user/block', authentication.apiAuthentication, user.block);
-router.post('/user/getAllBlocked', authentication.apiAuthentication, user.getAllBlocked);
-router.post('/user/unblock', authentication.apiAuthentication, user.unblock);
-router.get("/user/showNotification/:userId", authentication.apiAuthentication, user.showNotification);
-router.get("/user/hideNotification/:userId", authentication.apiAuthentication, user.hideNotification);
-router.get("/user/deactivate/:userId", user.deactivate);
-router.get("/user/activate/:userId",  user.activate);
-router.post("/user/deletedUser", user.deletedUser);
-router.post("/user/logout", authentication.apiAuthentication, user.logout);
+router.post("/webUser/register", webUser.register);
+router.post("/webUser/login", webUser.login);
+
+// Product routes
+router.post("/product/add",uploadMiddleware.array('images', 5), product.addProduct);
+router.delete("/product/remove/:productId", product.removeProduct);
+router.get("/product/single/:productId", product.singleProduct);
+router.get("/product/list", product.listProduct);
+
+
+// Cart routes
+router.post("/cart/add", cart.addToCart );
+router.put("/cart/updateCart",cart.updateCart);
+router.get("/cart/single/:productId",authUser, cart.addToCart);
+router.get("/cart/getData", cart.getUserCart);
+
+// Order routes
+router.post("/order/placeOrderRazorpay", order.placeOrderRazorpay );
+router.put("/order/placeOrderStripe",order.placeOrderStripe);
+router.get("/order/allOrders", order.allOrders);
+router.post("/order/userOrders", order.userOrders);
+router.post("/order/placeUserOrders", order.userPlaceOrders);
+
+router.get("/order/updateStatus", order.updateStatus);
+
 
 module.exports = router;

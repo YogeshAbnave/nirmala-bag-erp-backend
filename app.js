@@ -8,14 +8,37 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const routes = require('express').Router();
 const bodyParser = require('body-parser');
-
+const cloudinary = require('./config/cloudinary.js');
+const http = require('http');
+const server = http.createServer(app);
 const port = 8000
 app.set('views', path.join(__dirname, 'app/views'));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  res.cookie('example_cookie', 'cookie_value', {
+    httpOnly: true,
+    secure: true, // Required for SameSite=None
+    sameSite: 'None', // Allows cookies to be sent in third-party contexts
+  });
+  next();
+});
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:4200'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true); // Allow the request
+    } else {
+      callback(new Error('Not allowed by CORS')); // Reject the request
+    }
+  },
+  credentials: true, // Allows cookies to be included in requests
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/public', express.static('public'));
@@ -35,8 +58,25 @@ mongoose.connect(dbUri, {
     console.error('MongoDB connection error:', error);
 });
 mongoose.set('runValidators', true);
-
-//set up our express application
+(async () => {
+  try {
+      const result = await cloudinary.api.ping();
+      console.log('Cloudinary connection successful:', result);
+  } catch (error) {
+      console.error('Cloudinary connection error:', error);
+  }
+})();
+// //set up our express application
+// cloudinary.uploader.upload('./uploads', { 
+//   folder: 'uploads', 
+//   timeout: 120000 // Timeout set to 60 seconds (60000 ms)
+// })
+//   .then(result => {
+//     console.log('Upload successful:', result);
+//   })
+//   .catch(error => {
+//     console.error('Error uploading to Cloudinary:', error);
+//   });
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));  // Set the size limit to 50mb
@@ -65,8 +105,6 @@ app.post('/upload', upload, (req, res) => {
 app.use('/api', require('./app/routes/routes.js')); 
 app.use(express.static(path.join(__dirname, '/public')));
 
-const http = require('http');
-const server = http.createServer(app);
 server.listen(port);
 console.log('Server is up and listening on port ==========> ' + port);
 // pass the server to the socket

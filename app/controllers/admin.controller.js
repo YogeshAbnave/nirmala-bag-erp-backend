@@ -11,44 +11,38 @@ var forgotToken = require('../models/forgotToken.model');
 
 
 exports.login = function (req, res) {
-	console.log("req",req.body)
-    AdminUserData.findOne({ email: req.body.email }, function (err, userData) {
+    const { email, password } = req.body; // Extract email and password from the request body
+
+    // Find user by email
+    AdminUserData.findOne({ email }, function (err, userData) {
         if (err) {
-            return res.status(500).json({ success: false, status: 500, message: "Database error" });
+            return res.status(500).json({ success: false, message: "Database error" });
         }
         if (!userData) {
-            return res.status(400).json({ success: false, status: 400, message: "Incorrect email address" });
+            return res.status(400).json({ success: false, message: "Incorrect email address" });
         }
-        bcrypt.compare(req.body.password, userData.password, function (bcryptErr, result) {
+
+        // Compare password
+        bcrypt.compare(password, userData.password, function (bcryptErr, result) {
             if (bcryptErr) {
-                return res.status(500).json({ success: false, status: 500, message: "Error during password comparison" });
+                return res.status(500).json({ success: false, message: "Password comparison error" });
             }
             if (!result) {
-                return res.status(400).json({ success: false, status: 400, message: "Incorrect password" });
+                return res.status(400).json({ success: false, message: "Incorrect password" });
             }
-            if (!userData.active) {
-                return res.status(400).json({ success: false, status: 400, message: "Seems, your account is inactivated." });
-            }
-            if (userData.role !== "Admin") {
-                return res.status(400).json({ success: false, status: 400, message: "User not allowed" });
-            }
-            let token = jwt.sign({ username: userData.username }, 'RESTFULAPIs');
-            AdminUserData.updateOne({ "_id": userData._id }, { $set: { "sessionToken": token } })
-                .then(() => {
-				
-                    var data = {
-                        "success": true,
-                        "status": 200,
-                        "token": userData.sessionToken,
-                        "userId": userData._id,
-                        "email": userData.email,
-						"name": userData.firstName + " " + userData.lastName,
-                        "profilePic": userData.profilePic
-                    }
-                    return res.status(200).json(data);
-                }).catch(updateErr => {
-                    res.status(500).json({ success: false, status: 500, message: "Error updating session token" });
-                });
+
+            // Generate a token
+            const token = jwt.sign({ userId: userData._id, username: userData.username }, 'Nirmala-bag-erp', { expiresIn: '1h' });
+
+            // Send response with token
+            res.status(200).json({
+                success: true,
+                token: token,
+                userId: userData._id,
+                email: userData.email,
+                name: `${userData.firstName} ${userData.lastName}`,
+                profilePic: userData.profilePic || null,
+            });
         });
     });
 };
