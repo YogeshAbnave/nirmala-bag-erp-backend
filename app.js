@@ -27,17 +27,25 @@ app.use((req, res, next) => {
   });
   next();
 });
-const allowedOrigins = ['https://nirmala-bag-erp.web.app','https://nirmala-bag-erp-backend.onrender.com','http://localhost:5173', 'http://localhost:4200'];
-// added url
+const allowedOrigins = [
+  'https://nirmala-bag-erp.web.app',
+  'https://nirmala-bag-erp-backend.onrender.com',
+  'https://nirmala-bag.web.app',
+  'http://localhost:5173',
+  'http://localhost:4200'
+];
+
+// Configure CORS
 app.use(cors({
   origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
+    // Allow requests with no origin (like Postman or server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true); // Allow the request
     } else {
       callback(new Error('Not allowed by CORS')); // Reject the request
     }
   },
-  credentials: true, // Allows cookies to be included in requests
+  credentials: true // Allow cookies and other credentials
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
