@@ -1,7 +1,7 @@
 const express = require('express');
+const connectDB = require('./config/db.js');
 const app = express();
 const cors = require('cors');
-const mongoose = require('mongoose');
 const path = require('path');
 const multer = require('multer');
 const morgan = require('morgan');
@@ -51,21 +51,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/public', express.static('public'));
 
-/***************Mongodb configuratrion********************/
-// const dbUri = 'mongodb://localhost:27017/NirmalaBagErp';
-const dbUri = 'mongodb+srv://Nirmala-bag:Nirmala7596@ac-aphcdql.bi0xw4z.mongodb.net/Nirmala-bag?retryWrites=true&w=majority';
 
-mongoose.connect(dbUri, { 
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-}).then(() => {
-    console.log('MongoDB connected successfully');
-}).catch((error) => {
-    console.error('MongoDB connection error:', error);
-});
-mongoose.set('runValidators', true);
+connectDB();
 (async () => {
   try {
       const result = await cloudinary.api.ping();
@@ -74,17 +61,6 @@ mongoose.set('runValidators', true);
       console.error('Cloudinary connection error:', error);
   }
 })();
-// //set up our express application
-// cloudinary.uploader.upload('./uploads', { 
-//   folder: 'uploads', 
-//   timeout: 120000 // Timeout set to 60 seconds (60000 ms)
-// })
-//   .then(result => {
-//     console.log('Upload successful:', result);
-//   })
-//   .catch(error => {
-//     console.error('Error uploading to Cloudinary:', error);
-//   });
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));  // Set the size limit to 50mb

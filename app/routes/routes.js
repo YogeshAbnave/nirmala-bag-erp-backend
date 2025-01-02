@@ -6,7 +6,6 @@ var uploadFile = require("../../lib/uploadFile");
 const uploadMiddleware = require('../middleware/multer');
 const admin = require("../controllers/admin.controller");
 const webUser = require("../controllers/webUser.controller");
-const client = require("../controllers/client.controller");
 const product = require("../controllers/product.controller.js");
 const order = require("../controllers/order.controller.js");
 const cart = require("../controllers/cart.controller.js");
@@ -74,30 +73,10 @@ router.get("/admin/logout", admin.logout);
 router.get("/admin/getAdminById/:userId", authentication.apiAuthentication, admin.getAdminById);
 router.post("/admin/updateProfile", authentication.apiAuthentication, admin.updateProfile);
 
-
 // Xlsx import
 router.post('/xlsx/import/chunk', upload.single('chunk'), xlsx.insertXlsx);
 router.delete('/xlsx/import/delete/:id', xlsx.deleteData);
 router.get("/xlsx/import",xlsx.getData );
-
-// Employees routes
-
-
-
-
-
-
-
-// Client routes
-router.post("/client/register", client.register);
-router.post("/client/getAll",authentication.apiAuthentication, client.getAll);
-router.get("/client/getAllCount", authentication.apiAuthentication, client.getAllCount);
-router.post('/client/block', authentication.apiAuthentication, client.block);
-router.post('/client/getAllBlocked', authentication.apiAuthentication, client.getAllBlocked);
-router.post('/client/unblock', authentication.apiAuthentication, client.unblock);
-router.post("/client/isNotConverted", client.isNotConverted);
-router.post("/client/isConverted",  client.isConverted);
-router.post("/client/deletedClient", client.delete);
 
 // User routes
 router.post("/webUser/register", webUser.register);
@@ -108,7 +87,6 @@ router.post("/product/add",uploadMiddleware.array('images', 5), product.addProdu
 router.delete("/product/remove/:productId", product.removeProduct);
 router.get("/product/single/:productId", product.singleProduct);
 router.get("/product/list", product.listProduct);
-
 
 // Cart routes
 router.post("/cart/add", cart.addToCart );
@@ -122,8 +100,6 @@ router.put("/order/placeOrderStripe",order.placeOrderStripe);
 router.get("/order/allOrders", order.allOrders);
 router.post("/order/userOrders", order.userOrders);
 router.post("/order/placeUserOrders", order.userPlaceOrders);
-
 router.get("/order/updateStatus", order.updateStatus);
-
 
 module.exports = router;
