@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt');
 var salt = bcrypt.genSaltSync(10);
 var jwt = require("jsonwebtoken");
 var uid = require('rand-token').uid;
@@ -10,41 +10,56 @@ var AdminUserData = require('../models/admin.model');
 var forgotToken = require('../models/forgotToken.model');
 
 
-exports.login = function (req, res) {
-    const { email, password } = req.body; // Extract email and password from the request body
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    // Find user by email
-    AdminUserData.findOne({ email }, function (err, userData) {
-        if (err) {
-            return res.status(500).json({ success: false, message: "Database error" });
-        }
+        // Find user by email
+        const userData = await AdminUserData.findOne({ email }).exec();
         if (!userData) {
-            return res.status(400).json({ success: false, message: "Incorrect email address" });
+            return res.status(400).json({
+                success: false,
+                message: "Incorrect email address"
+            });
         }
 
-        // Compare password
-        bcrypt.compare(password, userData.password, function (bcryptErr, result) {
-            if (bcryptErr) {
-                return res.status(500).json({ success: false, message: "Password comparison error" });
-            }
-            if (!result) {
-                return res.status(400).json({ success: false, message: "Incorrect password" });
-            }
-
-            // Generate a token
-            const token = jwt.sign({ userId: userData._id, username: userData.username }, 'Nirmala-bag-erp', { expiresIn: '1h' });
-
-            // Send response with token
-            res.status(200).json({
-                success: true,
-                token: token,
-                userId: userData._id,
-                email: userData.email,
-                name: `${userData.firstName} ${userData.lastName}`,
-                profilePic: userData.profilePic || null,
+        // Compare password using bcrypt
+        const isPasswordMatch = await bcrypt.compare(password, userData.password);
+        if (!isPasswordMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Incorrect password"
             });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            {
+                userId: userData._id,
+                username: userData.username
+            },
+            'Nirmala-bag-erp', // Replace with a secure secret key stored in an environment variable
+            { expiresIn: '1h' }
+        );
+
+        // Send successful response
+        return res.status(200).json({
+            success: true,
+            token: token,
+            userId: userData._id,
+            email: userData.email,
+            name: `${userData.firstName} ${userData.lastName}`,
+            profilePic: userData.profilePic || null,
         });
-    });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred during login",
+            error: error.message
+        });
+    }
 };
 
 exports.logout = function (req, res) {
