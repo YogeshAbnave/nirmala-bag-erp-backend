@@ -1,6 +1,7 @@
 const webUserModel = require("../models/webUser.model.js");
 const orderModel = require("../models/order.model.js");
 const mongoose = require("mongoose");
+const { ObjectId } = require('mongodb');
 exports.placeOrderRazorpay = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
@@ -99,7 +100,7 @@ exports.userPlaceOrders = async (req, res) => {
     await newOrder.save();
 
     // Clear the user's cart data after placing the order
-    const userIdObj = mongoose.Types.ObjectId(userId);
+    const userIdObj = new ObjectId(userId);
     const updatedUser = await webUserModel.findByIdAndUpdate(
       { _id: userIdObj },
       { cartData: {} },
@@ -128,7 +129,7 @@ exports.userOrders = async (req, res) => {
     const { userId } = req.body;
 
     // Validate userId format
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid user ID format",
@@ -136,7 +137,7 @@ exports.userOrders = async (req, res) => {
     }
 
     // Convert userId to ObjectId
-    const userIdObj = mongoose.Types.ObjectId(userId);
+    const userIdObj = new ObjectId(userId);
 
     // Find the user by ID
     const user = await webUserModel.findById(userIdObj);
