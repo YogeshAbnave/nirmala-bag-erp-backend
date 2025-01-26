@@ -22,8 +22,8 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.cookie('example_cookie', 'cookie_value', {
     httpOnly: true,
-    secure: true, // Required for SameSite=None
-    sameSite: 'None', // Allows cookies to be sent in third-party contexts
+    secure: true, 
+    sameSite: 'None', 
   });
   next();
 });
