@@ -1,5 +1,9 @@
 pipeline {
     agent any
+
+    triggers {
+        pollSCM('* * * * *')
+    }
     
     environment {
         BUILD_ID = "dontKillMe"
@@ -69,7 +73,7 @@ pipeline {
 
     post {
         success {
-            echo 'Application deployed successfully!'
+            echo 'Application deployed successfully! hello word'
         }
         failure {
             echo 'Deployment failed. Check logs.'
