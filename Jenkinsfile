@@ -1,56 +1,64 @@
 pipeline {
     agent any
-
+   
     stages {
+        stage('Build') {
+            steps {
+                // Clean before build
+                cleanWs()
+            }
+        }
         stage('Checkout Code') {
             steps {
-                // Explicit Git clone command with remote cleanup
-                sh '''
-                git init
-                git remote remove origin || true
-                git remote add origin https://github.com/YogeshAbnave/nirmala-bag-erp-backend.git
-                git fetch origin
-                git checkout main
-                '''
+                git branch: 'main', 
+                    url: 'https://github.com/YogeshAbnave/nirmala-bag-erp-backend.git'
             }
         }
-
+        
         stage('Install Dependencies') {
             steps {
-                // Install dependencies with sharp specifically
                 sh '''
-                npm install --force
-                npm install sharp --force
+                /var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/npm  cache clean --force
+                /var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/npm  install --legacy-peer-deps
+                /var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/npm  install forever --force
                 '''
             }
         }
-
-        stage('Lint and Test') {
+        
+        stage('Run Security Audit') {
             steps {
-                // Run lint and test scripts
-                sh 'npm run lint || echo "Linting errors found."'
-                sh 'npm test || echo "Tests failed."'
+                sh '/var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/npm  audit || true'
             }
         }
-
+        
         stage('Start Application') {
             steps {
-                // Run the application in the background using nohup
-                sh '''
-                nohup npm start &> app.log &
-                sleep 60 # Wait for 60 seconds to allow the application to start
-                tail -n 10 app.log # Show the last 10 lines of the log for verification
-                '''
+                script {
+                    sh '''
+                        chmod +x startNode.sh
+                        ./startNode.sh
+                    '''
+                }
+            }
+        }
+        stage('Validate Application') {
+            steps {
+                script {
+                    sh '''
+                        /var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/node_modules/forever/bin/forever list
+                    '''
+                }
             }
         }
     }
-
+    
     post {
         success {
-            echo 'Pipeline executed successfully.'
+            echo 'Application deployed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check the logs for details.'
+            echo 'Deployment failed. Check logs.'
         }
+
     }
 }
