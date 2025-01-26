@@ -1,15 +1,15 @@
 pipeline {
     agent any
-
-    triggers {
-    githubPush()
-    }
     
     environment {
         BUILD_ID = "dontKillMe"
         JENKINS_NODE_COOKIE = "dontKillMe"
     }
-   
+    
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Clean Workspace') {
             steps {
