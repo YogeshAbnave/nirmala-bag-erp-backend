@@ -45,7 +45,7 @@ app.use(cors({
       callback(new Error('Not allowed by CORS')); // Reject the request
     }
   },
-  credentials: true // Allow cookies and other credentials
+  credentials: true 
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
