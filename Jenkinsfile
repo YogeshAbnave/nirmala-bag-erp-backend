@@ -30,6 +30,11 @@ pipeline {
                     url: 'https://github.com/YogeshAbnave/nirmala-bag-erp-backend.git'
             }
         }
+        stage('Stop All Application') {
+            steps {
+                sh '/var/lib/jenkins/nodejs/node-v22.13.1-linux-x64/bin/node_modules/forever/bin/forever stopall'
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
