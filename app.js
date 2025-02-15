@@ -22,8 +22,8 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.cookie('example_cookie', 'cookie_value', {
     httpOnly: true,
-    secure: true, // Required for SameSite=None
-    sameSite: 'None', // Allows cookies to be sent in third-party contexts
+    secure: true, 
+    sameSite: 'None', 
   });
   next();
 });
@@ -38,14 +38,13 @@ const allowedOrigins = [
 // Configure CORS
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman or server-to-server)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true); // Allow the request
     } else {
       callback(new Error('Not allowed by CORS')); // Reject the request
     }
   },
-  credentials: true // Allow cookies and other credentials
+  credentials: true 
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
