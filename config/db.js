@@ -8,7 +8,6 @@ process.removeAllListeners('warning');
 // Updated connection options
 const connectDB = async () => {
     try {
-        // Set these options globally for all schemas
         mongoose.set('strictQuery', false);
         
         await mongoose.connect(dbUri, {
