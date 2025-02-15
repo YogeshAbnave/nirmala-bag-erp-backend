@@ -12,8 +12,8 @@ const connectDB = async () => {
         mongoose.set('strictQuery', false);
         
         await mongoose.connect(dbUri, {
-            useNewUrlParser: true,      // Handles the URL string parser deprecation
-            useUnifiedTopology: true,   // Handles the Server Discovery and Monitoring engine deprecation
+            useNewUrlParser: true,      
+            useUnifiedTopology: true,   
         });
 
         // Handle the ensureIndex deprecation
