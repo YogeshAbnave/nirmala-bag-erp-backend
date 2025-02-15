@@ -5,7 +5,8 @@ var authentication = require("../../config/authentication.js");
 var uploadFile = require("../../lib/uploadFile");
 const uploadMiddleware = require('../middleware/multer');
 const admin = require("../controllers/admin.controller");
-const webUser = require("../controllers/webUser.controller");
+const client = require("../controllers/client.controller.js");
+const webUser = require("../controllers/webUser.controller.js");
 const product = require("../controllers/product.controller.js");
 const order = require("../controllers/order.controller.js");
 const cart = require("../controllers/cart.controller.js");
@@ -77,6 +78,14 @@ router.post("/admin/updateProfile", authentication.apiAuthentication, admin.upda
 router.post('/xlsx/import/chunk', upload.single('chunk'), xlsx.insertXlsx);
 router.delete('/xlsx/import/delete/:id', xlsx.deleteData);
 router.get("/xlsx/import",xlsx.getData );
+
+//Clients
+router.post("/client/add",uploadMiddleware.array('images', 5), client.addClient);
+router.get("/client/getAll", client.getAllClient);
+router.get("/client/getById/:id", client.getByIdClient);
+router.delete("/client/delete/:id", client.deleteClient);
+router.put("/client/update/:id",uploadMiddleware.array('images', 5), client.updateClient);
+
 
 // User routes
 router.post("/webUser/register", webUser.register);
